@@ -1,0 +1,38 @@
+-- Create a stationary store database --
+
+CREATE TABLE store (id INTEGER PRIMARY KEY, item TEXT, price INTEGER, category TEXT, sold INTEGER);
+ INSERT INTO store VALUES (1,"Bullet Journal", 29.99, "stationary", 62);
+ INSERT INTO store VALUES (2,"Micron Pens", 14.56, "writing tools", 78);
+INSERT INTO store VALUES (3,"Zebra Fine-Liners", 12.99, "writing tools", 51);
+INSERT INTO store VALUES (4, "Gold Washi Tape", 2.45, "accessories", 154);
+INSERT INTO store VALUES (5, "Silver Washi Tape", 2.35, "accessories", 102);
+INSERT INTO store VALUES (6, "Sketch Pad", 19.59, "stationary", 71);
+INSERT INTO store VALUES (7, "Tombow Dual Brush Pens", 19.99, "writing tools", 38);
+INSERT INTO store VALUES (8, "Watercolor Pencils", 9.99, "writing tools", 25);
+INSERT INTO store VALUES (9, "Stationary Stickers", 4.40, "accessories", 71);
+INSERT INTO store VALUES (10, "Bookmark", .45, "accessories", 66);
+INSERT INTO store VALUES (11, "Diary", 13.99, "stationary", 28); 
+INSERT INTO store VALUES (12, "Pen Carrying Case", 22.40, "accessories", 68);
+INSERT INTO store VALUES (13, "Stamp Set", 10.45, "accessories", 47);
+INSERT INTO store VALUES (14, "Post-It Notes", 5.50, "stationary", 32);
+INSERT INTO store VALUES (15, "White-Out", 3.29, "writing tools", 55);
+
+
+-- display items by price --
+ 
+SELECT * FROM store
+  ORDER BY price DESC;
+
+-- display total amount spent on different categories of item --
+
+SELECT category, SUM(sold) AS quantity_sold, ROUND(SUM(price*sold)) AS amount_spent FROM store
+  GROUP BY category
+  ORDER BY amount_spent DESC;
+
+-- determine top 3 most popular/profitable items --
+
+SELECT item AS premium_item, price, sold, ROUND(price*sold) AS amount_spent FROM store
+WHERE sold > 45
+AND amount_spent >1000
+ORDER BY amount_spent DESC 
+LIMIT 3
