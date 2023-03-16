@@ -1,0 +1,69 @@
+CREATE TABLE actors (id INTEGER NOT NULL PRIMARY KEY, name TEXT, birth_year INTEGER); 
+
+INSERT INTO actors (name, birth_year) VALUES ("Meryl Streep", 1949);
+INSERT INTO actors (name, birth_year) VALUES ("Daniel Day-Lewis", 1957);
+INSERT INTO actors (name, birth_year) VALUES ("Katherine Hepburn", 1907);
+INSERT INTO actors (name, birth_year) VALUES ("Jack Nicholson", 1937);
+
+CREATE TABLE movies (id INTEGER NOT NULL PRIMARY KEY, title TEXT, imdb_rating INTEGER, actor_id INTEGER);
+
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("Sophie's Choice", 7.5, 1);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("The Iron Lady", 6.4, 1);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("Kramer vs. Kramer", 7.8, 1);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("My Left Foot", 7.8, 2);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("There Will Be Blood", 8.2, 2);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("Lincoln", 7.3, 2);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("Morning Glory", 6.4,  3);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("Guess Who's Coming to Dinner",7.8, 3);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("The Lion in Winter", 7.9, 3);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("On Golden Pond", 7.6, 3);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("One Flew Over the Cuckoo's Nest", 8.7, 4);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("Terms of Endearment", 7.4, 4);
+INSERT INTO movies (title, imdb_rating, actor_id) VALUES ("As Good as it Gets", 7.7, 4);
+
+CREATE TABLE oscar_winners (id INTEGER NOT NULL PRIMARY KEY, movie_id INTEGER, year INTEGER, category TEXT);
+
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (1, 1983, "Best Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (2, 2011, "Best Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (3, 1979, "Supporting Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (4, 1990, "Best Actor");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (5, 2008, "Best Actor");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (6, 2013, "Best Actor");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (7, 1934, "Best Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (8, 1968, "Best Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (9, 1969, "Best Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (10, 1982, "Best Actress");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (11, 1976, "Best Actor");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (12, 1984, "Supporting Actor");
+INSERT INTO oscar_winners (movie_id, year, category) VALUES (13, 1998, "Best Actor");
+
+SELECT actors.name, movies.title, oscar_winners.year, movies.imdb_rating FROM actors
+JOIN movies
+    ON actors.id = movies.actor_id
+JOIN oscar_winners
+    ON movies.id = oscar_winners.movie_id
+ORDER BY year;
+
+SELECT actors.name, ROUND(AVG(movies.imdb_rating), 2) AS avg_imbd_rating FROM actors
+JOIN movies
+    ON actors.id = movies.actor_id
+JOIN oscar_winners
+    ON movies.id = oscar_winners.movie_id
+    GROUP BY name;
+SELECT actors.name, COUNT(oscar_winners.category) AS total_oscars FROM actors
+JOIN movies
+    ON actors.id = movies.actor_id
+JOIN oscar_winners
+    ON movies.id = oscar_winners.movie_id
+    GROUP BY name
+ORDER BY total_oscars DESC;
+
+SELECT actors.name, COUNT(oscar_winners.category) AS best_actor_oscars FROM actors
+JOIN movies
+    ON actors.id = movies.actor_id
+JOIN oscar_winners
+    ON movies.id = oscar_winners.movie_id
+    WHERE oscar_winners.category LIKE "Best%"
+GROUP BY name
+ORDER BY best_actor_oscars DESC
+
