@@ -1,0 +1,47 @@
+--In this SQL, I'm querying a database with multiple tables in it to quantify statistics about customer and order data--
+
+--How many orders were placed in January? --
+SELECT * FROM BIT_DB.customers
+WHERE length(order_id) = 6
+AND order_id <> 'Order ID'
+AND order_id <> '';
+
+--How many of those orders were for an iPhone? --
+SELECT COUNT(orderid) FROM BIT_DB.JanSales
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID'
+AND orderid <> ''
+AND product = 'iPhone';
+
+-- Select the customer account numbers for all the orders that were placed in February --
+SELECT customers.acctnum FROM customers
+JOIN FebSales
+ON customers.order_id = febsales.orderID
+WHERE length(order_id) = 6
+AND order_id <> '';
+
+-- Which product was the cheapest one sold in January, and what was the price? --
+SELECT product, MIN(price) FROM jansales;
+    --If unable to aggregate function/non-funtion--
+    SELECT distinct product, price FROM jansales
+    WHERE price in (SELECT min(price) FROM jansales);
+
+-- What is the total revenue for each product sold in January?--
+SELECT product, (SUM(quantity)*price) AS revenue FROM jansales
+GROUP BY product
+ORDER BY revenue DESC;
+
+-- Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue?--
+SELECT product, SUM(quantity), (price*quantity), location AS revenue FROM febsales
+WHERE location LIKE '548 Lincoln St%'
+GROUP BY product;
+
+-- How many customers ordered more than 2 products at a time, and what was the average amount spent for those customers? --
+SELECT COUNT(distinct customers.acctnum), ROUND(AVG((febsales.price*febsales.quantity)),2)  AS avg 
+FROM febsales
+LEFT JOIN customers
+ON customers.order_id = febsales.orderID
+WHERE  febsales.quantity > 2
+AND length(order_id) = 6
+AND order_id <> ''
+GROUP BY orderid
