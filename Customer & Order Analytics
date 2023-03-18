@@ -45,3 +45,8 @@ WHERE  febsales.quantity > 2
 AND length(order_id) = 6
 AND order_id <> ''
 GROUP BY orderid
+
+-- List all the products sold in Los Angeles in February, and include how many of each were sold --
+SELECT product, sum(quantity) FROM febsales
+WHERE location LIKE '%Angeles%'
+GROUP BY product
