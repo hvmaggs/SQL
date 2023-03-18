@@ -44,9 +44,41 @@ ON customers.order_id = febsales.orderID
 WHERE  febsales.quantity > 2
 AND length(order_id) = 6
 AND order_id <> ''
-GROUP BY orderid
+GROUP BY orderid;
 
 -- List all the products sold in Los Angeles in February, and include how many of each were sold --
 SELECT product, sum(quantity) FROM febsales
 WHERE location LIKE '%Angeles%'
+GROUP BY product;
+
+--Which locations in New York received at least 3 orders in January, and how many orders did they each receive--
+SELECT location, COUNT(orderid) AS total FROM jansales
+WHERE location LIKE '%NY%'
+AND length(orderid) = 6
+AND orderid <> 'Order ID'
+GROUP BY location
+HAVING count(orderid) >2;
+
+--How many of each type of headphone were sold in February?--
+SELECT product, SUM(quantity) as total_sold FROM febsales
+WHERE product LIKE '%eadphone%'
+GROUP BY product;
+
+--What was the average amount spent per account in February?--
+SELECT (SUM(quantity*price)/COUNT(customers.acctnum)) AS avg_spent_per_account FROM customers
+JOIN febsales
+ON customers.order_id = febsales.orderID
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID';
+
+--What was the average quantity of products purchased per account in February?--
+SELECT SUM(quantity)/COUNT(customers.acctnum) AS avg_quant FROM customers
+JOIN febsales
+ON customers.order_id = febsales.orderID
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID';
+
+--Which product brought in the most revenue in January and how much revenue did it bring in total?--
+SELECT product, ROUND(SUM(quantity*price),2) AS total_spend FROM jansales
 GROUP BY product
+ORDER BY total_spend DESC LIMIT 1;
