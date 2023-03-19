@@ -1,0 +1,138 @@
+--In this SQL, I'm querying a database with multiple tables in it to quantify statistics about customer and order data--
+
+-- Show the full names, customer ID, and country of Customers who are not in the US --
+SELECT firstname || ' ' || lastname AS full_name, customerid, country FROM customers
+WHERE country <> 'USA';
+
+-- Show only the Customers from Brazil --
+SELECT firstname, lastname, customerid, country FROM customers
+WHERE country = 'Brazil';
+
+-- Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country --
+SELECT customers.firstname, customers.lastname, invoices.invoiceid, invoices.invoicedate, invoices.billingcountry FROM customers 
+INNER JOIN invoices 
+    ON customers.customerid=invoices.invoiceid
+WHERE customers.country = 'Brazil';
+    
+-- Show the Employees who are Sales Agents --
+SELECT firstname, lastname, title FROM employees
+WHERE title = 'Sales Support Agent';
+
+-- Find a unique/distinct list of billing countries from the Invoice table --
+SELECT DISTINCT(billingcountry) AS country FROM invoices
+ORDER BY country ASC;
+
+-- Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name --
+SELECT employees.firstname ||' '|| employees.lastname AS employee_name, items.invoiceid FROM invoice_items items
+INNER JOIN invoices
+    ON items.invoiceid = invoices.invoiceid
+INNER JOIN customers
+    ON invoices.customerid = customers.customerid
+INNER JOIN employees
+    ON customers.supportrepid = employees.employeeid;
+
+-- Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers --
+SELECT employees.firstname ||' '|| employees.lastname AS employee_name, customers.firstname ||' '|| customers.lastname AS customer_name, customers.country, invoices.total
+FROM employees 
+INNER JOIN customers 
+    ON employees.employeeid = customers.supportrepid 
+INNER JOIN invoices 
+    ON customers.customerid = invoices.customerid;
+
+-- How many Invoices were there in 2009? --
+SELECT COUNT(invoiceid) FROM invoices
+WHERE invoicedate LIKE '2009%';
+
+-- What are the total sales for 2009? --
+SELECT ROUND(SUM((items.unitprice*items.quantity)),2) AS total_revenue FROM invoice_items items
+INNER JOIN invoices
+    ON items.invoiceid = invoices.InvoiceId
+WHERE invoices.InvoiceDate LIKE '2009%';
+
+--Write a query that includes the purchased track name with each invoice line ID --
+SELECT tracks.name, items.invoicelineid FROM tracks
+INNER JOIN invoice_items items
+    ON tracks.trackid = items.trackid;
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID --
+SELECT tracks.name, artists.name AS artist, items.invoicelineid FROM tracks
+INNER JOIN invoice_items items
+    ON tracks.trackid = items.trackid
+INNER JOIN albums
+    ON tracks.AlbumId = albums.albumid
+INNER JOIN artists 
+    ON albums.artistid = artists.artistid;
+
+-- Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre --
+SELECT tracks.name, albums.title AS album, media.name AS media, genres.name AS genre FROM tracks
+INNER JOIN albums
+    ON tracks.albumId = albums.albumid
+INNER JOIN media_types media
+    ON tracks.mediatypeid = media.mediatypeid
+INNER JOIN genres
+    ON tracks.genreid = genres.genreid;
+
+--Show the total sales made by each sales agent --
+SELECT employees.firstname ||' '||employees.lastname AS employeename, ROUND(SUM((items.unitprice*items.quantity)),2) AS total_sales FROM invoice_items items
+INNER JOIN invoices
+    ON items.invoiceid = invoices.InvoiceId
+INNER JOIN customers
+    ON invoices.customerid = customers.customerid
+INNER JOIN employees
+    ON customers.supportrepid = employees.employeeid
+GROUP BY employeename;
+
+--Which sales agent made the most dollars in sales in 2009? --
+SELECT employees.firstname ||' '||employees.lastname AS employee_name, ROUND(SUM((items.unitprice*items.quantity)),2) AS total_sales FROM invoice_items items
+INNER JOIN invoices
+    ON items.invoiceid = invoices.InvoiceId
+INNER JOIN customers
+    ON invoices.customerid = customers.customerid
+INNER JOIN employees
+    ON customers.supportrepid = employees.employeeid
+WHERE invoices.invoicedate LIKE '2009%'
+GROUP BY employee_name
+ORDER BY total_sales DESC
+LIMIT 1;
+
+-- Which playlist has the most tracks on it? --
+SELECT playlists.name, COUNT(playlists.playlistid) AS tracks from playlists
+INNER JOIN playlist_track 
+    ON playlists.playlistid = playlist_track.playlistid
+GROUP BY playlists.playlistid
+ORDER BY tracks DESC LIMIT 1;
+
+-- Select all songs that Santana has collaborated on --
+SELECT tracks.name AS title, artists.name AS artists, albums.title AS album FROM artists
+INNER JOIN albums 
+    ON albums.artistid = artists.artistid
+INNER JOIN tracks
+    ON tracks.albumid = albums.albumid
+WHERE artists.name LIKE '%Santana%';
+
+-- Select the shortest Pop song --
+SELECT tracks.name AS title, genres.name AS genre FROM genres
+INNER JOIN tracks
+    ON genres.genreid = tracks.genreid
+WHERE genre = 'Pop'
+ORDER BY tracks.milliseconds ASC LIMIT 1;
+
+-- Who does each employee report to? --
+SELECT  emps.firstname ||' '||emps.lastname AS employee_name, managers.firstname ||' '||managers.lastname AS manager FROM employees emps, employees managers
+WHERE managers.employeeid = emps.reportsto;
+
+--How much has been spent on each of the different media types? --
+SELECT media.name,  ROUND(SUM((items.unitprice*items.quantity)),2) AS sales FROM media_types media
+INNER JOIN tracks
+    ON media.mediatypeid = tracks.mediatypeid
+INNER JOIN invoice_items items
+    ON tracks.trackid = items.trackid
+GROUP BY media.name
+ORDER BY sales DESC;
+
+-- How many composers are there by genre? --
+SELECT genres.name, COUNT(tracks.composer) AS composers FROM tracks
+INNER JOIN genres
+    ON tracks.genreid = genres.GenreId
+GROUP BY genres.name
+ORDER BY composers DESC
